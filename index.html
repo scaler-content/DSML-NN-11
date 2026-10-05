@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neural Networks 11 post read</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F1E4;
+  --bg-card:#FFFEFA;
+  --bg-soft:#EDE6D2;
+  --green-950:#0D1E15;
+  --green-900:#13291E;
+  --green-800:#1B3A2A;
+  --green-700:#244F3A;
+  --green-600:#316750;
+  --green-500:#457F63;
+  --green-300:#9FBCAB;
+  --green-200:#D1DED4;
+  --ink:#152018;
+  --ink-soft:#4A5A4F;
+  --gold:#A97E2F;
+  --gold-soft:#D3B06C;
+  --line:#DCD3B9;
+  --red:#9C3B2E;
+  --serif:'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:76px;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--gold-soft); color:var(--green-950);}
+a{color:var(--green-700);}
+h1,h2,h3,h4{font-family:var(--serif); font-weight:600; color:var(--green-950); line-height:1.22; margin:0 0 .5em;}
+p{margin:0 0 1.1em; max-width:70ch;}
+.visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--gold); outline-offset:3px; border-radius:3px;
+}
+
+/* ---------- progress bar ---------- */
+#progress{position:fixed; top:0; left:0; height:3px; width:0%; background:var(--gold); z-index:200; transition:width .12s linear;}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; background:rgba(246,241,228,.92); backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .brand{font-family:var(--serif); font-weight:600; font-size:17px; color:var(--green-950); white-space:nowrap;}
+.topbar .brand span{color:var(--gold);}
+.menu-btn{
+  display:none; background:var(--green-900); color:var(--bg); border:none; border-radius:8px;
+  padding:8px 12px; font-family:var(--sans); font-size:14px; cursor:pointer;
+}
+
+/* ---------- layout ---------- */
+.shell{display:grid; grid-template-columns:260px minmax(0,1fr); gap:0; max-width:1240px; margin:0 auto;}
+nav.toc{
+  position:sticky; top:61px; align-self:start; height:calc(100vh - 61px); overflow-y:auto;
+  padding:28px 18px 40px 22px; border-right:1px solid var(--line);
+}
+nav.toc ol{list-style:none; margin:0; padding:0; border-left:2px solid var(--line);}
+nav.toc li{margin:0;}
+nav.toc a{
+  display:block; padding:7px 0 7px 16px; margin-left:-2px; border-left:2px solid transparent;
+  color:var(--ink-soft); text-decoration:none; font-size:14px; transition:color .15s, border-color .15s;
+}
+nav.toc a:hover{color:var(--green-800);}
+nav.toc a.active{color:var(--green-900); font-weight:600; border-left-color:var(--gold);}
+nav.toc .toc-label{font-size:11px; letter-spacing:.06em; color:var(--green-600); margin:0 0 10px 0; font-weight:600;}
+
+main{min-width:0; padding:0 0 100px;}
+
+/* ---------- hero ---------- */
+.hero{
+  background:radial-gradient(1200px 500px at 15% -10%, #21473490, transparent), var(--green-950);
+  color:var(--bg); padding:72px 48px 56px; position:relative; overflow:hidden;
+}
+.hero .eyebrow{color:var(--gold-soft); font-size:14px; margin-bottom:14px; font-family:var(--sans);}
+.hero h1{color:#FBF7EC; font-size:clamp(32px,4.4vw,52px); max-width:16ch; margin-bottom:.3em;}
+.hero p.lede{color:#CBDBD0; font-size:18px; max-width:56ch;}
+.hero-net{position:absolute; right:-40px; top:0; bottom:0; width:420px; opacity:.5;}
+@media (max-width:860px){.hero-net{display:none;}}
+
+/* ---------- sections ---------- */
+section{padding:54px 48px; border-bottom:1px solid var(--line);}
+section:last-of-type{border-bottom:none;}
+.kicker{font-size:13px; color:var(--gold); font-weight:600; margin-bottom:8px;}
+section h2{font-size:clamp(24px,3vw,32px); max-width:28ch;}
+.section-intro{font-size:17.5px; color:var(--ink-soft); max-width:68ch;}
+
+/* ---------- callouts ---------- */
+.callout{
+  background:var(--bg-card); border:1px solid var(--line); border-left:4px solid var(--green-600);
+  border-radius:10px; padding:18px 20px; margin:18px 0; max-width:70ch;
+}
+.callout.note{border-left-color:var(--gold);}
+.callout.important{border-left-color:var(--red);}
+.callout h4{font-family:var(--sans); font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--green-700); margin-bottom:6px;}
+.callout.important h4{color:var(--red);}
+.callout p:last-child{margin-bottom:0;}
+
+.qbox{background:var(--green-200); border:1px solid var(--green-300); border-radius:10px; padding:16px 20px; margin:18px 0; max-width:70ch;}
+.qbox .q{font-weight:600; color:var(--green-950); margin-bottom:4px;}
+.qbox .a{color:var(--ink-soft); margin:0;}
+
+/* ---------- code ---------- */
+details.code-card{
+  background:var(--green-950); border-radius:10px; margin:16px 0; max-width:74ch; overflow:hidden;
+  border:1px solid var(--green-800);
+}
+details.code-card summary{
+  cursor:pointer; list-style:none; padding:12px 18px; color:var(--green-200); font-size:14px;
+  font-family:var(--sans); font-weight:500; display:flex; align-items:center; gap:8px;
+  background:var(--green-900);
+}
+details.code-card summary::-webkit-details-marker{display:none;}
+details.code-card summary::before{content:"▸"; color:var(--gold-soft); transition:transform .15s;}
+details.code-card[open] summary::before{transform:rotate(90deg);}
+details.code-card pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:13px; color:#DCE8DF; line-height:1.55;}
+details.code-card .out{color:#9FB6A6; border-top:1px dashed var(--green-700); margin-top:10px; padding-top:10px;}
+
+/* ---------- tables ---------- */
+.tbl-wrap{overflow-x:auto; margin:18px 0; max-width:74ch;}
+table{border-collapse:collapse; width:100%; font-size:14.5px; background:var(--bg-card);}
+th,td{border:1px solid var(--line); padding:9px 12px; text-align:left;}
+th{background:var(--green-900); color:var(--bg); font-weight:500; font-family:var(--sans); font-size:13px;}
+td strong{color:var(--green-800);}
+
+/* ---------- grids / cards ---------- */
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:20px 0;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:20px 0;}
+@media (max-width:760px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+.card{background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:20px;}
+.card h4{font-family:var(--serif); font-size:17px; margin-bottom:8px;}
+.card ul{margin:0; padding-left:20px; color:var(--ink-soft); font-size:15px;}
+.card li{margin-bottom:4px;}
+
+/* ---------- tabs (knob diagnostic) ---------- */
+.tabs{max-width:76ch; margin:20px 0;}
+.tab-btns{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+.tab-btn{
+  background:var(--bg-card); border:1px solid var(--line); color:var(--ink-soft); padding:10px 16px;
+  border-radius:999px; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:500;
+  transition:all .15s;
+}
+.tab-btn[aria-selected="true"]{background:var(--green-800); border-color:var(--green-800); color:#fff;}
+.tab-panel{display:none; background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:22px;}
+.tab-panel.active{display:block;}
+.tab-panel h4{font-family:var(--serif); font-size:18px; margin-bottom:4px; color:var(--green-800);}
+.tab-panel .diag{font-size:13px; color:var(--gold); font-weight:600; margin-bottom:10px;}
+.tab-panel ul{margin:0; padding-left:20px;}
+.tab-panel li{margin-bottom:6px;}
+
+/* ---------- charts ---------- */
+.chart-wrap{background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:22px 22px 10px; margin:20px 0; max-width:78ch;}
+.chart-title{font-size:14px; font-weight:600; color:var(--green-800); margin-bottom:14px;}
+svg{display:block; width:100%; height:auto; font-family:var(--sans);}
+.bar{fill:var(--green-500); transition:fill .15s;}
+.bar.best{fill:var(--gold);}
+.bar:hover{fill:var(--green-700);}
+.axis-label{fill:var(--ink-soft); font-size:11.5px;}
+.val-label{fill:var(--green-950); font-size:12px; font-weight:600;}
+.gridline{stroke:var(--line); stroke-width:1;}
+.chart-tip{font-size:13px; color:var(--ink-soft); margin-top:8px;}
+
+/* ---------- calculators ---------- */
+.calc{background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:24px; margin:20px 0; max-width:76ch;}
+.calc-row{margin-bottom:18px;}
+.calc-row label{display:flex; justify-content:space-between; font-size:14px; font-weight:600; color:var(--green-900); margin-bottom:6px;}
+.calc-row output{color:var(--gold); font-family:var(--mono);}
+input[type=range]{width:100%; accent-color:var(--green-600);}
+input[type=number]{
+  width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:7px; font-family:var(--mono);
+  font-size:15px; background:var(--bg); color:var(--ink);
+}
+.calc-result{
+  display:flex; gap:14px; flex-wrap:wrap; margin-top:16px; padding-top:16px; border-top:1px dashed var(--line);
+}
+.result-pill{
+  flex:1; min-width:150px; background:var(--green-900); color:var(--bg); border-radius:10px; padding:14px 16px;
+}
+.result-pill .n{font-family:var(--mono); font-size:24px; color:var(--gold-soft); display:block;}
+.result-pill .l{font-size:12.5px; color:var(--green-300);}
+.verdict{margin-top:14px; padding:12px 14px; border-radius:8px; background:var(--green-200); color:var(--green-950); font-size:14.5px; font-weight:500;}
+
+/* ---------- sigmoid/softmax compare ---------- */
+.cmp-bars{display:flex; gap:10px; align-items:flex-end; height:170px; margin:16px 0;}
+.cmp-col{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;}
+.cmp-stack{display:flex; gap:4px; align-items:flex-end; height:130px; width:100%; justify-content:center;}
+.cmp-bar{width:16px; border-radius:3px 3px 0 0; position:relative;}
+.cmp-bar.soft{background:var(--green-500);}
+.cmp-bar.sig{background:var(--gold);}
+.cmp-label{font-size:12px; color:var(--ink-soft); text-align:center;}
+.legend{display:flex; gap:18px; font-size:13px; color:var(--ink-soft); margin-top:4px;}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.swatch{width:11px; height:11px; border-radius:3px; display:inline-block;}
+
+/* ---------- quiz ---------- */
+.quiz{background:var(--bg-card); border:1px solid var(--green-300); border-radius:14px; padding:24px; margin:22px 0; max-width:76ch;}
+.quiz .qtag{font-size:12px; font-weight:700; letter-spacing:.04em; color:var(--green-700); margin-bottom:10px;}
+.quiz .question{font-size:16.5px; font-weight:600; color:var(--green-950); margin-bottom:14px;}
+.quiz .options{display:flex; flex-direction:column; gap:9px;}
+.quiz .opt{
+  text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:12px 14px;
+  cursor:pointer; font-family:var(--sans); font-size:14.5px; color:var(--ink); transition:all .12s;
+}
+.quiz .opt:hover{border-color:var(--green-500);}
+.quiz .opt.correct{background:#E3EEE4; border-color:var(--green-600); color:var(--green-950); font-weight:600;}
+.quiz .opt.wrong{background:#F3E4DF; border-color:var(--red); color:var(--red); font-weight:600;}
+.quiz .explain{display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line); font-size:14.5px; color:var(--ink-soft);}
+.quiz .explain.show{display:block;}
+.quiz .explain strong{color:var(--green-800);}
+
+/* ---------- recap ---------- */
+.recap-list{list-style:none; margin:20px 0; padding:0; max-width:74ch;}
+.recap-list li{
+  display:flex; gap:14px; padding:16px 0; border-bottom:1px solid var(--line);
+}
+.recap-list li:last-child{border-bottom:none;}
+.recap-num{font-family:var(--serif); font-size:20px; color:var(--gold); flex-shrink:0; width:28px;}
+.recap-list b{color:var(--green-900); display:block; margin-bottom:2px;}
+.recap-list span.d{color:var(--ink-soft); font-size:15px;}
+
+/* ---------- footer ---------- */
+footer{background:var(--green-950); color:var(--green-300); padding:36px 48px; text-align:center; font-size:13.5px;}
+footer .fname{color:var(--bg); font-family:var(--serif); font-size:16px; margin-bottom:4px;}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;}
+  nav.toc{
+    position:fixed; top:57px; left:0; right:0; bottom:0; height:auto; background:var(--bg);
+    transform:translateY(-110%); transition:transform .2s ease; z-index:90; padding:20px 22px;
+    border-right:none;
+  }
+  nav.toc.open{transform:translateY(0);}
+  .menu-btn{display:inline-block;}
+  section{padding:40px 22px;}
+  .hero{padding:52px 22px 40px;}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="topbar">
+  <div class="brand">Neural Networks 11 <span>post read</span></div>
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="tocNav">Contents</button>
+</header>
+
+<div class="shell">
+  <nav class="toc" id="tocNav" aria-label="Table of contents">
+    <p class="toc-label">ON THIS PAGE</p>
+    <ol>
+      <li><a href="#diagnose">Start with a diagnosis</a></li>
+      <li><a href="#business-case">The business case</a></li>
+      <li><a href="#baseline">The baseline model</a></li>
+      <li><a href="#orthogonalization">Orthogonalization</a></li>
+      <li><a href="#hyperparameters">Tuning hyperparameters</a></li>
+      <li><a href="#gradient-checking">Gradient checking</a></li>
+      <li><a href="#metrics">A single evaluation metric</a></li>
+      <li><a href="#human-level">Human-level performance</a></li>
+      <li><a href="#error-analysis">Error analysis</a></li>
+      <li><a href="#multi-task">Multi-task learning</a></li>
+      <li><a href="#recap">Recap</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section class="hero" id="top">
+      <svg class="hero-net" viewBox="0 0 300 500" aria-hidden="true">
+        <g stroke="#9FBCAB" stroke-opacity=".5" stroke-width="1" fill="none">
+          <g id="netlines"></g>
+        </g>
+        <g id="netnodes"></g>
+      </svg>
+      <p class="eyebrow">Practical deep learning · reading time ~22 min</p>
+      <h1>Practical Aspects of Neural Networks</h1>
+      <p class="lede">A working method for the moment every practitioner meets: the model trains, the numbers come out, and they aren't good enough. This is the systematic path from symptom to fix — diagnosis, tuning, verification, measurement, and judgment — built around one real customer-segmentation model, end to end.</p>
+    </section>
+
+    <!-- ================= DIAGNOSE ================= -->
+    <section id="diagnose">
+      <p class="kicker">Framing</p>
+      <h2>What do you do when your model does not work?</h2>
+      <p class="section-intro">Training a neural network takes a few lines of code. Knowing what to change when it does not work is the skill that separates a beginner from someone who can be trusted with a production model.</p>
+      <p>This is a systematic way to answer that question, and it is the spine of everything that follows:</p>
+      <div class="grid-3">
+        <div class="card"><h4>Diagnose</h4><ul><li>Match the symptom to the knob before touching anything</li></ul></div>
+        <div class="card"><h4>Tune</h4><ul><li>Adjust the settings that matter most, in the right order</li></ul></div>
+        <div class="card"><h4>Verify</h4><ul><li>Confirm backpropagation itself is computing correctly</li></ul></div>
+        <div class="card"><h4>Measure</h4><ul><li>Choose a metric that tells the truth about performance</li></ul></div>
+        <div class="card"><h4>Judge</h4><ul><li>Compare against human-level performance, not a vacuum</li></ul></div>
+        <div class="card"><h4>Extend</h4><ul><li>Handle inputs that carry more than one label at once</li></ul></div>
+      </div>
+    </section>
+
+    <!-- ================= BUSINESS CASE ================= -->
+    <section id="business-case">
+      <p class="kicker">Working example</p>
+      <h2>The business case</h2>
+      <p class="section-intro">A bank wants to categorize its customers so it can advertise a credit card product to the right people. As the data scientist, the task is to classify customers into one of four segments based on their spending, family size, age, and marital status — a 4-class classification problem that will carry every idea in this post.</p>
+
+      <h3 style="margin-top:28px;">The data</h3>
+      <p>After loading the raw customer records, two columns are dropped immediately: a row ID, which carries no information about the customer, and an anonymized category with no clear business meaning. In a real project a column like that would only be dropped after an experiment showed it didn't help — not because it can't be explained.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Gender</strong></td><td>Male or Female</td></tr>
+            <tr><td><strong>Ever_Married</strong></td><td>Married or not</td></tr>
+            <tr><td><strong>Age</strong></td><td>Age of the customer</td></tr>
+            <tr><td><strong>Graduated</strong></td><td>Graduated or not</td></tr>
+            <tr><td><strong>Profession</strong></td><td>Artist, Doctor, Engineer, Entertainment, Executive, Healthcare, Homemaker, Lawyer, Marketing</td></tr>
+            <tr><td><strong>Work_Experience</strong></td><td>Years of experience, 0–14</td></tr>
+            <tr><td><strong>Spending_Score</strong></td><td>Customer expenditure score (Low / Average / High)</td></tr>
+            <tr><td><strong>Family_Size</strong></td><td>Family size, 1–9</td></tr>
+            <tr><td><strong>Segmentation</strong></td><td>Target: segment A, B, C, or D</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout important">
+        <h4>Important</h4>
+        <p>Rows with missing values are dropped for this demo. In a real project, check how many rows are lost and whether the missing values are random first — if they're linked to the target, dropping them quietly changes the problem being solved.</p>
+      </div>
+
+      <p>After cleaning, the target is label-encoded (A/B/C/D → 0/1/2/3) and the remaining categorical columns are one-hot encoded. The data is then split, with roughly 10% held out for validation and another 10% for testing:</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Split</th><th>Samples</th><th>Features</th></tr></thead>
+          <tbody>
+            <tr><td>Train</td><td>5,441</td><td>21</td></tr>
+            <tr><td>Validation</td><td>605</td><td>21</td></tr>
+            <tr><td>Test</td><td>672</td><td>21</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <h4>Why fit the scaler only on training data?</h4>
+        <p>The standard scaler learns its mean and standard deviation from whatever it is fitted on. Fit it on validation or test data too, and information the model is supposed to never see leaks into training — scores look better than they really are. This is <strong>data leakage</strong>, a classic reason a model that looked great in the notebook fails in production.</p>
+      </div>
+
+      <div class="callout note">
+        <h4>Class index, not one-hot</h4>
+        <p>PyTorch's cross-entropy loss takes the class index as the target and raw logits (not probabilities) from the last layer — it applies softmax internally. Adding a softmax layer before it applies softmax twice: the code still runs without error, but the model learns more slowly and the loss values become misleading. It's one of the most common PyTorch bugs, and a favorite interview question.</p>
+      </div>
+    </section>
+
+    <!-- ================= BASELINE ================= -->
+    <section id="baseline">
+      <p class="kicker">Working example</p>
+      <h2>The baseline model</h2>
+      <p class="section-intro">Before trying anything clever, every project needs a baseline: a simple model whose numbers every later change gets compared against. Without one, nobody can say whether a change actually helped.</p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">A 6-layer baseline — ReLU between every linear layer, raw logits out</div>
+        <svg viewBox="0 0 760 220" role="img" aria-label="Diagram of a 6-layer fully connected network: input, 64, 32, 16, 8, and 4-neuron output layers">
+          <g id="baseline-net"></g>
+        </svg>
+        <p class="chart-tip">21 input features → 64 → 32 → 16 → 8 → 4 class logits. Weights use Glorot (Xavier) initialization; optimizer is Adam with cross-entropy loss.</p>
+      </div>
+
+      <details class="code-card">
+        <summary>View the model definition</summary>
+        <pre>def create_baseline(in_features, n_classes=4):
+    model = nn.Sequential(
+        nn.Linear(in_features, 64), nn.ReLU(),
+        nn.Linear(64, 32), nn.ReLU(),
+        nn.Linear(32, 16), nn.ReLU(),
+        nn.Linear(16, 8), nn.ReLU(),
+        nn.Linear(8, n_classes),   # raw logits — no softmax here
+    )
+    for layer in model:
+        if isinstance(layer, nn.Linear):
+            nn.init.xavier_uniform_(layer.weight)
+            nn.init.zeros_(layer.bias)
+    return model</pre>
+      </details>
+
+      <p>The training loop follows the same four steps in every PyTorch project: clear old gradients, run the forward pass and compute the loss, run backpropagation, update the weights. Accuracy alone can hide poor performance on individual classes, so precision, recall and F1 are tracked too, averaged across the four classes.</p>
+
+      <details class="code-card">
+        <summary>View the training loop</summary>
+        <pre>def train_model(model, lr=1e-3, epochs=10, batch_size=128):
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    loader = DataLoader(TensorDataset(X_train_t, y_train_t),
+                         batch_size=batch_size, shuffle=True)
+    for epoch in range(epochs):
+        model.train()
+        for xb, yb in loader:
+            optimizer.zero_grad()           # 1. clear old gradients
+            loss = loss_fn(model(xb), yb)   # 2. forward pass + loss
+            loss.backward()                 # 3. backpropagation
+            optimizer.step()                # 4. update weights
+        # ...precision / recall / F1 logged each epoch</pre>
+      </details>
+
+      <p>After 10 epochs, both training and validation loss are still high and still falling, and precision and recall are far from where they should be — the model hasn't finished learning. Roughly half of the customers are classified correctly. That's the number everything else in this post improves on.</p>
+    </section>
+
+    <!-- ================= ORTHOGONALIZATION ================= -->
+    <section id="orthogonalization">
+      <p class="kicker">Core idea</p>
+      <h2>Orthogonalization: one knob, one problem</h2>
+      <p class="section-intro">There's a long list of things that could help a weak baseline: more epochs, a deeper network, regularization, a different optimizer, more data. Tried at random, that list burns months without ever confirming what actually helped.</p>
+
+      <p>Think of a DJ mixer. One knob controls pitch, one controls amplitude, one adds bass. If the DJ wants more bass, there is exactly one knob to turn. If one knob changed pitch, amplitude, and bass together, nobody could control the sound. Every idea for improving a model is a knob — the skill is knowing <em>which</em> knob fixes <em>which</em> symptom, and turning only one at a time. Change three things in one run and the metric moves, and nobody can say which change caused it.</p>
+
+      <p>Click a symptom to see the knobs that actually target it:</p>
+
+      <div class="tabs" id="orthoTabs">
+        <div class="tab-btns" role="tablist" aria-label="Model symptoms">
+          <button class="tab-btn" role="tab" aria-selected="true" data-tab="under">High training error</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="over">Fits training, fails validation</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="test">Good train & val, poor test</button>
+        </div>
+        <div class="tab-panel active" data-panel="under">
+          <p class="diag">Diagnosis: underfitting (high bias)</p>
+          <h4>The model hasn't learned the training data well</h4>
+          <ul>
+            <li>A bigger network — more layers or more neurons</li>
+            <li>A different optimizer, preferably Adam</li>
+            <li>Training for more epochs</li>
+          </ul>
+        </div>
+        <div class="tab-panel" data-panel="over">
+          <p class="diag">Diagnosis: overfitting (high variance)</p>
+          <h4>The model memorizes training examples instead of generalizing</h4>
+          <ul>
+            <li>Regularization — L2, dropout, batch normalization</li>
+            <li>A simpler network</li>
+            <li>More training data, ideally diverse samples (new cities, age groups — not more of what's already seen)</li>
+          </ul>
+        </div>
+        <div class="tab-panel" data-panel="test">
+          <p class="diag">Diagnosis: validation set too small or unrepresentative</p>
+          <h4>Rare, but a real failure mode</h4>
+          <ul>
+            <li>A bigger, more representative validation set</li>
+            <li>The model (or its hyperparameters) likely overfit the validation set itself — not the loss function, which would show the same problem on validation too</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <h4>Why not just collect more data?</h4>
+        <p>It looks like the safest answer, but it shouldn't be the first move: some data is hard to get, collection is time-intensive, and it's possible to spend months collecting data and see no improvement. Diagnose first — cheap knobs come before expensive ones.</p>
+      </div>
+
+      <div class="quiz" data-answer="c">
+        <p class="qtag">QUICK CHECK</p>
+        <p class="question">A model reaches 99% accuracy on the training set but only 84% on the validation set. Which single change targets this problem best?</p>
+        <div class="options">
+          <button class="opt" data-key="a">Train for many more epochs using the same settings</button>
+          <button class="opt" data-key="b">Switch to a different optimizer such as RMSprop</button>
+          <button class="opt" data-key="c">Add dropout between the hidden layers of the model</button>
+          <button class="opt" data-key="d">Make the network deeper with several extra hidden layers</button>
+        </div>
+        <div class="explain"><strong>Why:</strong> the 99%-vs-84% gap is a variance problem — the model is memorizing. Dropout is a regularizer, so it targets exactly this symptom. More epochs or a deeper network add fitting power, which widens the gap further; a different optimizer mainly changes how fast training error falls, not how well the model generalizes.</div>
+      </div>
+    </section>
+
+    <!-- ================= HYPERPARAMETERS ================= -->
+    <section id="hyperparameters">
+      <p class="kicker">Tuning</p>
+      <h2>Which hyperparameters to tune, and in what order</h2>
+      <p class="section-intro">Many of the knobs above are settings of the training process — the hyperparameters. They can't all be tuned at once, and they don't matter equally.</p>
+
+      <div class="grid-3">
+        <div class="card"><h4>Tune first</h4><ul><li>Learning rate α — most model failures trace back here</li></ul></div>
+        <div class="card"><h4>Tune next</h4><ul><li>Momentum β (0.9 is a good default)</li><li>Number of neurons / hidden units</li><li>Batch size</li></ul></div>
+        <div class="card"><h4>Tune last</h4><ul><li>Number of layers — changes the network entirely</li><li>Learning rate decay</li><li>Adam's β₁, β₂, ε — rarely worth it</li></ul></div>
+      </div>
+
+      <h3 style="margin-top:32px;">Testing the claim: five learning rates, everything else held fixed</h3>
+      <p>The same baseline is trained five times from the same starting weights with the same optimizer — the only thing that changes is the learning rate.</p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Final validation loss after 10 epochs, by learning rate (lower is better)</div>
+        <svg viewBox="0 0 640 260" role="img" aria-label="Bar chart of final validation loss at five learning rates">
+          <g id="lrChart"></g>
+        </svg>
+        <p class="chart-tip">The two extremes do badly: 0.00001 barely moves the loss in 10 epochs, and 1.0 makes it jump around. Only the middle values — <strong>0.001</strong> and <strong>0.01</strong> — train properly. Same data, same network, same optimizer: one number decided whether the model learned at all.</p>
+      </div>
+
+      <div class="callout note">
+        <h4>Why search the learning rate on a log scale?</h4>
+        <p>The useful range spans several orders of magnitude, roughly 10⁻⁵ to 10⁻¹. Sampling uniformly between 0.00001 and 0.1 puts about 90% of samples above 0.01 — small values are almost never tested. Sampling the exponent uniformly instead gives every order of magnitude equal attention.</p>
+      </div>
+
+      <h3 style="margin-top:32px;">Grid search doesn't scale — random search does</h3>
+      <p>Grid search trains one model per combination of hyperparameter values. As the number of hyperparameters grows, the number of combinations — and the compute bill — grows very fast. The usual fix: run a cheap random search first to find the promising region, then grid-search inside it.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Learning rate</th><th>Batch size</th><th>Val. loss</th><th>Val. F1</th></tr></thead>
+          <tbody>
+            <tr><td>0.00814</td><td>128</td><td><strong>1.0486</strong></td><td>0.5136</td></tr>
+            <tr><td>0.00661</td><td>256</td><td>1.0589</td><td>0.5094</td></tr>
+            <tr><td>0.05474</td><td>256</td><td>1.0777</td><td>0.5195</td></tr>
+            <tr><td>0.00011</td><td>32</td><td>1.0900</td><td>0.4849</td></tr>
+            <tr><td>0.00013</td><td>64</td><td>1.1111</td><td>0.4711</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Five random trials, five distinct learning rates tested. A 5×5 grid over the same budget would repeat each learning rate five times with different batch sizes — testing only 5 distinct values of the hyperparameter that matters most.</p>
+
+      <div class="quiz" data-answer="a">
+        <p class="qtag">QUICK CHECK</p>
+        <p class="question">You can afford 25 training runs to tune two hyperparameters: the learning rate, which matters a lot, and the batch size, which matters little. Why is random search usually better than a 5×5 grid here?</p>
+        <div class="options">
+          <button class="opt" data-key="a">It tests 25 different learning rates, while the grid tests 5</button>
+          <button class="opt" data-key="b">It guarantees the best values are found within 25 runs</button>
+          <button class="opt" data-key="c">It needs fewer training runs than a grid to cover the same space</button>
+          <button class="opt" data-key="d">It removes the need for a separate validation set when tuning</button>
+        </div>
+        <div class="explain"><strong>Why:</strong> in a 5×5 grid, every learning rate repeats 5 times with different batch sizes, so only 5 distinct learning rates are ever tried. Random search samples a new value for every hyperparameter on every run, so 25 runs test 25 distinct learning rates — a far better chance of landing near the best value when one hyperparameter dominates.</div>
+      </div>
+    </section>
+
+    <!-- ================= GRADIENT CHECKING ================= -->
+    <section id="gradient-checking">
+      <p class="kicker">Verification</p>
+      <h2>Gradient checking</h2>
+      <p class="section-intro">So far, every fix assumed the training machinery itself works. But what if the loss refuses to go down even after the right knobs are turned? One possibility: a bug inside backpropagation. PyTorch's autograd computes gradients for built-in layers automatically, so this mostly matters for <strong>custom layers, custom losses, or a hand-written backward pass</strong>.</p>
+
+      <h3 style="margin-top:28px;">Approximating a derivative numerically</h3>
+      <p>Take a function, say f(x) = x³, and two points around x = 2: p = x + ε and q = x − ε. The slope of the line through them approximates the true derivative:</p>
+      <p style="font-family:var(--mono); font-size:15px; background:var(--bg-card); border:1px solid var(--line); border-radius:8px; padding:14px 18px; display:inline-block;">f'(x) ≈ [ f(x+ε) − f(x−ε) ] / 2ε</p>
+
+      <div class="calc">
+        <div class="calc-row">
+          <label for="epsRange"><span>Step size ε</span><output id="epsVal">0.0100</output></label>
+          <input type="range" id="epsRange" min="1" max="200" value="100">
+        </div>
+        <div class="calc-result">
+          <div class="result-pill"><span class="n" id="approxOut">—</span><span class="l">Numerical approximation</span></div>
+          <div class="result-pill"><span class="n">12.0000</span><span class="l">Exact derivative, f′(x)=3x²=12</span></div>
+          <div class="result-pill"><span class="n" id="diffOut">—</span><span class="l">Absolute difference</span></div>
+        </div>
+        <p class="chart-tip" style="margin-top:14px;">Drag the slider. As ε shrinks the approximation converges toward the true derivative — this is the mechanism gradient checking relies on, applied to every value in a network's weights instead of one toy function.</p>
+      </div>
+
+      <h3 style="margin-top:32px;">Scaling it to a whole network</h3>
+      <p>Every layer's weights and biases are unrolled into one flat vector θ, so the loss becomes a function of θ alone. The same finite-difference trick is then applied to <em>every</em> value in θ, one at a time, and compared against the gradient backpropagation actually computed — this is slow (two forward passes per value), so it's used for debugging only, never during training, and it needs 64-bit floats, since 32-bit rounding error can swamp a step of ε = 10⁻⁷.</p>
+      <p>The two gradient vectors are compared with a relative-difference score: ≤ 10⁻⁵ means no issue; above that, something in backpropagation is wrong, and a value around 10⁻³ or higher is almost certainly a bug.</p>
+
+      <details class="code-card">
+        <summary>View the relative-difference check</summary>
+        <pre>def relative_difference(a, b):
+    return (torch.norm(a - b) / (torch.norm(a) + torch.norm(b))).item()
+
+def report(grad_numeric, grad_analytic, model):
+    print("whole network", relative_difference(grad_numeric, grad_analytic))
+    start = 0
+    for name, p in model.named_parameters():
+        end = start + p.numel()
+        print(name, relative_difference(grad_numeric[start:end],
+                                         grad_analytic[start:end]))
+        start = end</pre>
+      </details>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Relative difference, per layer — correct code vs. a planted bug</div>
+        <div class="tab-btns" role="tablist" style="margin-bottom:16px;">
+          <button class="tab-btn" id="btnClean" aria-selected="true">Correct backward pass</button>
+          <button class="tab-btn" id="btnBuggy" aria-selected="false">Bug: forgot the last bias gradient</button>
+        </div>
+        <svg viewBox="0 0 640 230" role="img" aria-label="Bar chart comparing relative difference per layer, clean vs buggy gradients">
+          <g id="gcChart"></g>
+        </svg>
+        <p class="chart-tip" id="gcCaption">Every layer sits far below the 10⁻⁵ threshold — backpropagation is correct for this network.</p>
+      </div>
+
+      <p>Notice what the buggy report does: it doesn't just say something is wrong, it says <em>where</em>. Only the last layer's bias spikes, so that's exactly where to look for the bug — not the whole network.</p>
+
+      <div class="qbox">
+        <p class="q">Does gradient checking work with dropout?</p>
+        <p class="a">No. Dropout silences different neurons on every pass, so the loss changes randomly between the two forward passes and the numerical gradient becomes meaningless. Switch dropout off while checking.</p>
+      </div>
+
+      <div class="quiz" data-answer="d">
+        <p class="qtag">QUICK CHECK</p>
+        <p class="question">A gradient check on a network with custom layers gives a relative difference of 10⁻⁹ for every layer except one, whose weight gradient shows 0.8. What should you do next?</p>
+        <div class="options">
+          <button class="opt" data-key="a">Lower the learning rate and continue training</button>
+          <button class="opt" data-key="b">Increase epsilon until the difference becomes smaller</button>
+          <button class="opt" data-key="c">Collect more training samples and check again</button>
+          <button class="opt" data-key="d">Inspect the backward code of that layer's weights</button>
+        </div>
+        <div class="explain"><strong>Why:</strong> 10⁻⁹ in every other layer means backprop matches the numerical gradient almost everywhere. The 0.8 value shows the analytic gradient for that one layer's weights is wrong — the bug lives in its backward code. Learning rate, data volume, and epsilon size don't change whether the analytic gradient is correct.</div>
+      </div>
+    </section>
+
+    <!-- ================= METRICS ================= -->
+    <section id="metrics">
+      <p class="kicker">Measurement</p>
+      <h2>A single evaluation metric</h2>
+      <p class="section-intro">Backpropagation is verified and the right knobs are known. The next question: after every experiment, how do you decide a new model is actually better? Tracking precision and recall separately doesn't settle it — they don't always agree.</p>
+
+      <h3 style="margin-top:28px;">F1: combine precision and recall</h3>
+      <p>Model A: precision 68%, recall 35%. Model B: precision 64%, recall 40%. Which is better? On raw numbers, it's an argument — A wins on precision, B wins on recall. The F1 score, the harmonic mean of the two, settles it by punishing a model that's excellent at one thing and poor at the other.</p>
+
+      <div class="calc">
+        <div class="calc-row">
+          <label for="precRange"><span>Precision</span><output id="precVal">0.68</output></label>
+          <input type="range" id="precRange" min="0" max="100" value="68">
+        </div>
+        <div class="calc-row">
+          <label for="recRange"><span>Recall</span><output id="recVal">0.35</output></label>
+          <input type="range" id="recRange" min="0" max="100" value="35">
+        </div>
+        <div class="calc-result">
+          <div class="result-pill"><span class="n" id="avgOut">—</span><span class="l">Simple average</span></div>
+          <div class="result-pill"><span class="n" id="f1Out">—</span><span class="l">F1 score</span></div>
+        </div>
+        <p class="chart-tip" style="margin-top:14px;">Try precision 0.95 / recall 0.30 (average 0.625, but F1 only 0.456), then precision 0.60 / recall 0.55 (average 0.575, F1 0.574) — F1 favors the balanced model even though its average is lower.</p>
+      </div>
+
+      <h3 style="margin-top:32px;">When metrics can't be combined: optimizing vs. satisficing</h3>
+      <p>F1 score and running time can't be merged into one sensible number. The fix: pick one <strong>optimizing metric</strong> to maximize, and put a threshold — a <strong>satisficing constraint</strong> — on the rest. In practice the satisficing metrics are usually engineering limits like latency or memory, and the optimizing metric is quality.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>F1 score</th><th>Running time</th></tr></thead>
+          <tbody>
+            <tr><td>A</td><td>80%</td><td>100ms</td></tr>
+            <tr><td>B</td><td>92%</td><td>180ms</td></tr>
+            <tr><td>C</td><td>95%</td><td>250ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Maximize F1 such that latency ≤ 200ms → <strong>Model B</strong> (C is too slow). Raise the threshold to 300ms → <strong>Model C</strong>. The threshold itself comes from the business, not the data — a fraud check has to finish before the payment screen times out.</p>
+
+      <h3 style="margin-top:32px;">A surprise about micro-averaged F1</h3>
+      <p>For a single-label problem, every wrong prediction is counted twice — once as a false positive for the predicted class, once as a false negative for the true class. Pooled across all classes, micro precision, micro recall, micro F1, and plain accuracy all collapse to the same number.</p>
+
+      <div class="tabs">
+        <div class="tab-btns" role="tablist">
+          <button class="tab-btn" id="btnBal" aria-selected="true">Balanced classes (the segmentation model)</button>
+          <button class="tab-btn" id="btnImb" aria-selected="false">95% one class, model predicts only that class</button>
+        </div>
+        <div class="tab-panel active" id="panelBal">
+          <div class="calc-result">
+            <div class="result-pill"><span class="n">0.5339</span><span class="l">Accuracy</span></div>
+            <div class="result-pill"><span class="n">0.5339</span><span class="l">Micro F1</span></div>
+            <div class="result-pill"><span class="n">0.5153</span><span class="l">Macro F1</span></div>
+          </div>
+          <p class="chart-tip">Accuracy, micro precision, micro recall and micro F1 are all identical — only macro F1 differs, and here it differs only slightly.</p>
+        </div>
+        <div class="tab-panel" id="panelImb">
+          <div class="calc-result">
+            <div class="result-pill"><span class="n">0.95</span><span class="l">Accuracy</span></div>
+            <div class="result-pill"><span class="n">0.95</span><span class="l">Micro F1</span></div>
+            <div class="result-pill"><span class="n">0.487</span><span class="l">Macro F1</span></div>
+          </div>
+          <p class="chart-tip">A model that never once finds the minority class still scores 0.95 accuracy and micro F1. Macro F1 — which treats every class equally — collapses to 0.487, because that class's F1 is 0. Macro averaging is what exposes a classifier that's secretly just predicting the majority class.</p>
+        </div>
+      </div>
+
+      <div class="quiz" data-answer="b">
+        <p class="qtag">QUICK CHECK</p>
+        <p class="question">A single-label classifier with four classes always predicts the majority class, which covers 90% of the data. Which metric exposes this problem?</p>
+        <div class="options">
+          <button class="opt" data-key="a">Micro-averaged F1 score</button>
+          <button class="opt" data-key="b">Macro-averaged F1 score</button>
+          <button class="opt" data-key="c">Micro-averaged recall</button>
+          <button class="opt" data-key="d">Overall accuracy</button>
+        </div>
+        <div class="explain"><strong>Why:</strong> for single-label multi-class data, micro precision, recall and F1 all equal accuracy — each would report 90% and hide the problem. Macro F1 computes each class's F1 first, then plain-averages. The three never-predicted classes score 0, dragging macro F1 well below 90%.</div>
+      </div>
+
+      <div class="callout note">
+        <h4>Keep validation and test from the same distribution</h4>
+        <p>On the held-out test set, the model scores a macro F1 of 0.5047 — close to validation's 0.5153, because both sets are drawn from the same distribution. If validation held only one region's customers and test held another, the two sets would describe different populations, and a validation score would say nothing about test performance. The fix: pool all the data, shuffle, then split — this is the day-to-day version of the production problem called <strong>distribution shift</strong>.</p>
+      </div>
+    </section>
+
+    <!-- ================= HUMAN LEVEL ================= -->
+    <section id="human-level">
+      <p class="kicker">Judgment</p>
+      <h2>Human-level performance & Bayes error</h2>
+      <p class="section-intro">A macro F1 of roughly 0.5 — is that good? A number alone means nothing; it needs something to compare against.</p>
+
+      <div class="grid-2">
+        <div class="card"><h4>Trivial baselines</h4><ul><li>Random guess among 4 classes: ~25%</li><li>Always predict the majority class: 25.6%</li><li>Our model: ~50% — clearly learned something</li></ul></div>
+        <div class="card"><h4>But is 50% good enough?</h4><ul><li>If a human scores 60% on the same task, the model is still behind</li><li>Most business problems want the model at or beyond human performance</li></ul></div>
+      </div>
+
+      <p>There is always some irreducible error in any dataset — noise, ambiguous cases, overlapping classes, occasionally wrong labels. The lowest error any model or human could possibly reach is the <strong>Bayes optimal error</strong>. Since we rarely know it exactly, human-level performance is used as its proxy — which makes it a very useful reference for deciding whether to fight bias or variance.</p>
+
+      <h3 style="margin-top:28px;">Avoidable bias vs. variance — try it</h3>
+      <p>Avoidable bias is the gap between human (Bayes-proxy) error and training error. Variance is the gap between training and validation error. Enter three numbers and see which one dominates:</p>
+
+      <div class="calc">
+        <div class="grid-3" style="margin:0 0 6px;">
+          <div class="calc-row" style="margin-bottom:0;">
+            <label for="humanErr"><span>Human error (%)</span></label>
+            <input type="number" id="humanErr" value="1" step="0.1" min="0">
+          </div>
+          <div class="calc-row" style="margin-bottom:0;">
+            <label for="trainErr"><span>Training error (%)</span></label>
+            <input type="number" id="trainErr" value="7" step="0.1" min="0">
+          </div>
+          <div class="calc-row" style="margin-bottom:0;">
+            <label for="valErr"><span>Validation error (%)</span></label>
+            <input type="number" id="valErr" value="9" step="0.1" min="0">
+          </div>
+        </div>
+        <div class="calc-result">
+          <div class="result-pill"><span class="n" id="biasOut">—</span><span class="l">Avoidable bias</span></div>
+          <div class="result-pill"><span class="n" id="varOut">—</span><span class="l">Variance</span></div>
+        </div>
+        <div class="verdict" id="biasVerdict">—</div>
+        <p class="chart-tip" style="margin-top:12px;">Defaults: a car-classification task where human error is 1%, training error 7%, validation error 9% — bias dominates. Switch human error to 6.5% (say, the images turn blurry) and the same training/validation errors suddenly point to variance instead. Same model, same errors, two different next steps — the human reference is what tells you which.</p>
+      </div>
+
+      <div class="qbox">
+        <p class="q">With several human benchmarks — an average person at 3% error, a doctor at 1%, a team of experts at 0.5% — which counts as "human error," and which as the Bayes proxy?</p>
+        <p class="a">The specialist in the field (the doctor, 1%) is the human-error reference; the best attainable group (the expert team, 0.5%) stands in for Bayes optimal error — the lowest error that can be attained is always the best available estimate.</p>
+      </div>
+
+      <div class="quiz" data-answer="d">
+        <p class="qtag">QUICK CHECK</p>
+        <p class="question">For a task, the best human expert team makes 2% error. A model has 3% training error and 8% validation error. What should you work on first?</p>
+        <div class="options">
+          <button class="opt" data-key="a">Reducing bias by training a much bigger network</button>
+          <button class="opt" data-key="b">Collecting more expert labels to lower human error</button>
+          <button class="opt" data-key="c">Training longer until training error reaches 0%</button>
+          <button class="opt" data-key="d">Reducing variance with regularization or more data</button>
+        </div>
+        <div class="explain"><strong>Why:</strong> avoidable bias is 3% − 2% = 1%. Variance is 8% − 3% = 5% — five times larger. The model already fits close to human level; it just doesn't generalize. Regularization or more diverse data attacks that gap, while a bigger network or longer training would only chip away at the small bias term.</div>
+      </div>
+
+      <h3 style="margin-top:32px;">When tuning stops helping: error analysis</h3>
+      <p>Once hyperparameter tuning only moves the needle slightly, the next step is manual: take the misclassified validation samples, count them by class, and work on whichever class accounts for the largest share of mistakes — fixing it removes the most error for the least effort.</p>
+    </section>
+
+    <!-- ================= ERROR ANALYSIS ================= -->
+    <section id="error-analysis">
+      <p class="kicker">Measurement</p>
+      <h2>Error analysis</h2>
+      <p class="section-intro">Applied to the segmentation model's validation errors:</p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Misclassified validation samples by true class</div>
+        <svg viewBox="0 0 560 230" role="img" aria-label="Bar chart of misclassification counts by class: A 71, B 96, C 67, D 48">
+          <g id="errChart"></g>
+        </svg>
+        <p class="chart-tip"><strong>Class B</strong> accounts for 34% of all errors — the single biggest lever. Fixing B's misclassifications, in parallel with C's, removes the largest share of total error for the effort spent.</p>
+      </div>
+
+      <h3 style="margin-top:28px;">Using an AI assistant safely for error analysis</h3>
+      <p>A confusion-matrix summary is exactly the kind of thing an AI assistant can help reason about — but raw customer rows must never be pasted into an external tool. Share only aggregated numbers.</p>
+      <ol style="max-width:70ch; color:var(--ink-soft);">
+        <li>Share the misclassification table and confusion matrix as aggregated text, never raw rows.</li>
+        <li>Ask the assistant for a few hypotheses about why specific classes get confused.</li>
+        <li>Pick one hypothesis and test it directly against the validation data.</li>
+        <li>Report whether the data actually supports it.</li>
+      </ol>
+
+      <details class="code-card">
+        <summary>View one such test — error rate by spending score</summary>
+        <pre>val_df.groupby("Spending_Score")["wrong"].agg(["mean", "count"]).round(3)</pre>
+        <pre class="out">                 mean  count
+Spending_Score
+Average         0.442    154
+High            0.540     87
+Low             0.459    364</pre>
+      </details>
+      <p>An AI-proposed hypothesis is a lead, not a finding — it becomes a finding only once the data confirms it, with a reported number attached.</p>
+    </section>
+
+    <!-- ================= MULTI-TASK ================= -->
+    <section id="multi-task">
+      <p class="kicker">Extension</p>
+      <h2>Multi-task learning</h2>
+      <p class="section-intro">Every customer so far carried exactly one label. What if a single input can carry several labels at once — an autonomous-vehicle frame that contains both a stop sign and a car?</p>
+
+      <div class="grid-2">
+        <div class="card"><h4>The classical approach</h4><ul><li>Train 4 separate models — one per object</li><li>No information shared between them</li><li>4× the inference compute, every frame</li></ul></div>
+        <div class="card"><h4>The neural network approach</h4><ul><li>One output layer, 4 neurons — one per object</li><li>Hidden layers share features across all 4 tasks</li><li>One forward pass answers all four questions — this is <strong>multi-task learning</strong></li></ul></div>
+      </div>
+
+      <h3 style="margin-top:28px;">Why sigmoid, not softmax, for the output</h3>
+      <p>Softmax picks <em>one</em> class among several — its outputs compete and sum to 1. Here, several tags can be true in the same frame at once, so each one is its own independent yes/no question: sigmoid with binary cross-entropy.</p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Same four scores, two different output functions</div>
+        <div class="cmp-bars" id="sigSoftChart"></div>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--green-500);"></span> Softmax (competes, sums to 1)</span>
+          <span><span class="swatch" style="background:var(--gold);"></span> Sigmoid (independent probabilities)</span>
+        </div>
+        <p class="chart-tip" style="margin-top:12px;">With softmax, the stop-sign score (0.62) pulls the car down to 0.14 — they're competing for the same probability mass. With sigmoid, car gets 0.82 <em>and</em> stop sign gets 0.95 at the same time — exactly what's needed when both are genuinely in the frame.</p>
+      </div>
+
+      <div class="quiz" data-answer="a">
+        <p class="qtag">QUICK CHECK</p>
+        <p class="question">A single network must tag every photo with any combination of "beach," "dog," and "sunset." Several tags can be true in the same photo. Which output layer and loss fit this problem?</p>
+        <div class="options">
+          <button class="opt" data-key="a">Three independent sigmoid outputs trained with binary cross-entropy</button>
+          <button class="opt" data-key="b">One softmax over the three tags trained with categorical cross-entropy</button>
+          <button class="opt" data-key="c">Three ReLU outputs trained with mean squared error</button>
+          <button class="opt" data-key="d">One sigmoid output trained with categorical cross-entropy</button>
+        </div>
+        <div class="explain"><strong>Why:</strong> a photo can contain a beach, a dog, and a sunset at once, so each tag is its own yes/no question. Sigmoid treats every tag independently, and binary cross-entropy is the matching loss. Softmax forces the probabilities to sum to 1, making the tags compete as if only one could be present.</div>
+      </div>
+
+      <div class="callout note">
+        <h4>The trade-off, in interview terms</h4>
+        <p>One multi-task network shares hidden features (which can improve every task) and needs only one forward pass (lower inference cost and latency). The risk: tasks can interfere when they need very different features, or when one loss dominates the others. This matters most when the compute or latency budget is genuinely tight.</p>
+      </div>
+    </section>
+
+    <!-- ================= RECAP ================= -->
+    <section id="recap">
+      <p class="kicker">Summary</p>
+      <h2>The path to follow, every time a model does not work</h2>
+      <ol class="recap-list">
+        <li><span class="recap-num">1</span><div><b>Diagnose before changing anything.</b><span class="d">Match the symptom to the knob — underfitting, overfitting, or an unrepresentative validation set. Change one thing at a time.</span></div></li>
+        <li><span class="recap-num">2</span><div><b>Tune the settings that matter most.</b><span class="d">Learning rate first, with random search on a log scale, then a finer search in the promising region.</span></div></li>
+        <li><span class="recap-num">3</span><div><b>Verify the machinery.</b><span class="d">Gradient checking catches bugs in custom backward code, and points to which layer to inspect.</span></div></li>
+        <li><span class="recap-num">4</span><div><b>Measure with one honest metric.</b><span class="d">One optimizing metric with satisficing constraints; an average that doesn't hide a poor class. Keep validation and test from the same distribution.</span></div></li>
+        <li><span class="recap-num">5</span><div><b>Judge against a reference.</b><span class="d">Human-level performance, as a proxy for Bayes error, splits the gap into avoidable bias and variance.</span></div></li>
+        <li><span class="recap-num">6</span><div><b>Analyze the errors.</b><span class="d">When tuning stops helping, count mistakes per class and test hypotheses on the data — AI as a source of hypotheses, never of answers.</span></div></li>
+        <li><span class="recap-num">7</span><div><b>Handle several labels at once.</b><span class="d">Sigmoid outputs with binary cross-entropy for multi-task problems.</span></div></li>
+      </ol>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="fname">Neural Networks 11 post read</div>
+  <div>Practical Aspects of Neural Networks</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- progress bar + scrollspy ---------- */
+  var progress = document.getElementById('progress');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main section[id]'));
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var height = h.scrollHeight - h.clientHeight;
+    progress.style.width = (height > 0 ? (scrolled/height*100) : 0) + '%';
+
+    var current = sections[0] && sections[0].id;
+    for (var i=0;i<sections.length;i++){
+      if (sections[i].getBoundingClientRect().top - 110 <= 0) current = sections[i].id;
+    }
+    tocLinks.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#'+current);
+    });
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  /* ---------- mobile nav ---------- */
+  var menuBtn = document.getElementById('menuBtn');
+  var tocNav = document.getElementById('tocNav');
+  menuBtn.addEventListener('click', function(){
+    var open = tocNav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open);
+  });
+  tocLinks.forEach(function(a){
+    a.addEventListener('click', function(){ tocNav.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); });
+  });
+
+  /* ---------- generic tab groups (orthogonalization) ---------- */
+  document.querySelectorAll('.tab-btns').forEach(function(group){
+    var btns = Array.prototype.slice.call(group.querySelectorAll('.tab-btn[data-tab]'));
+    if (!btns.length) return;
+    btns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        btns.forEach(function(b){ b.setAttribute('aria-selected','false'); });
+        btn.setAttribute('aria-selected','true');
+        var panels = group.parentElement.querySelectorAll('.tab-panel');
+        panels.forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-panel')===btn.getAttribute('data-tab')); });
+      });
+    });
+  });
+
+  /* ---------- micro/macro F1 toggle ---------- */
+  var btnBal = document.getElementById('btnBal'), btnImb = document.getElementById('btnImb');
+  var panelBal = document.getElementById('panelBal'), panelImb = document.getElementById('panelImb');
+  if (btnBal && btnImb){
+    btnBal.addEventListener('click', function(){
+      btnBal.setAttribute('aria-selected','true'); btnImb.setAttribute('aria-selected','false');
+      panelBal.classList.add('active'); panelImb.classList.remove('active');
+    });
+    btnImb.addEventListener('click', function(){
+      btnImb.setAttribute('aria-selected','true'); btnBal.setAttribute('aria-selected','false');
+      panelImb.classList.add('active'); panelBal.classList.remove('active');
+    });
+  }
+
+  /* ---------- quizzes ---------- */
+  document.querySelectorAll('.quiz').forEach(function(q){
+    var answer = q.getAttribute('data-answer');
+    var opts = Array.prototype.slice.call(q.querySelectorAll('.opt'));
+    var explain = q.querySelector('.explain');
+    var answered = false;
+    opts.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if (answered) return;
+        answered = true;
+        opts.forEach(function(o){
+          o.disabled = true;
+          if (o.getAttribute('data-key') === answer) o.classList.add('correct');
+          else if (o === opt) o.classList.add('wrong');
+        });
+        explain.classList.add('show');
+      });
+    });
+  });
+
+  /* ---------- epsilon / finite-difference calculator ---------- */
+  var epsRange = document.getElementById('epsRange');
+  var epsVal = document.getElementById('epsVal');
+  var approxOut = document.getElementById('approxOut');
+  var diffOut = document.getElementById('diffOut');
+  function updateEps(){
+    var eps = epsRange.value / 10000;           // range 1..200 -> eps 0.0001..0.02
+    epsVal.textContent = eps.toFixed(4);
+    var x = 2;
+    var approx = (Math.pow(x+eps,3) - Math.pow(x-eps,3)) / (2*eps);
+    approxOut.textContent = approx.toFixed(4);
+    diffOut.textContent = Math.abs(approx-12).toExponential(2);
+  }
+  if (epsRange){ epsRange.addEventListener('input', updateEps); updateEps(); }
+
+  /* ---------- F1 calculator ---------- */
+  var precRange = document.getElementById('precRange');
+  var recRange = document.getElementById('recRange');
+  var precVal = document.getElementById('precVal');
+  var recVal = document.getElementById('recVal');
+  var avgOut = document.getElementById('avgOut');
+  var f1Out = document.getElementById('f1Out');
+  function updateF1(){
+    var p = precRange.value/100, r = recRange.value/100;
+    precVal.textContent = p.toFixed(2);
+    recVal.textContent = r.toFixed(2);
+    avgOut.textContent = ((p+r)/2).toFixed(3);
+    var f1 = (p+r)===0 ? 0 : (2*p*r)/(p+r);
+    f1Out.textContent = f1.toFixed(3);
+  }
+  if (precRange){ precRange.addEventListener('input', updateF1); recRange.addEventListener('input', updateF1); updateF1(); }
+
+  /* ---------- bias / variance calculator ---------- */
+  var humanErr = document.getElementById('humanErr');
+  var trainErr = document.getElementById('trainErr');
+  var valErr = document.getElementById('valErr');
+  var biasOut = document.getElementById('biasOut');
+  var varOut = document.getElementById('varOut');
+  var biasVerdict = document.getElementById('biasVerdict');
+  function updateBV(){
+    var h = parseFloat(humanErr.value)||0, t = parseFloat(trainErr.value)||0, v = parseFloat(valErr.value)||0;
+    var bias = t - h, variance = v - t;
+    biasOut.textContent = bias.toFixed(1)+'%';
+    varOut.textContent = variance.toFixed(1)+'%';
+    if (Math.abs(bias) >= Math.abs(variance)){
+      biasVerdict.textContent = 'Avoidable bias (' + bias.toFixed(1) + '%) is the larger gap — focus on fitting the training set better: a bigger network, a better optimizer, or more training.';
+    } else {
+      biasVerdict.textContent = 'Variance (' + variance.toFixed(1) + '%) is the larger gap — focus on generalization: regularization, dropout, or more diverse data.';
+    }
+  }
+  [humanErr, trainErr, valErr].forEach(function(el){ if(el) el.addEventListener('input', updateBV); });
+  updateBV();
+
+  /* ---------- SVG: hero decorative network ---------- */
+  (function(){
+    var layers = [3,5,4,3];
+    var nodeR = 4.5, w = 300, h = 500, pad = 50;
+    var xs = layers.map(function(_,i){ return pad + i*((w-2*pad)/(layers.length-1)); });
+    var positions = layers.map(function(count, li){
+      var ys = [];
+      var gap = (h-2*pad)/(count-1 || 1);
+      for (var i=0;i<count;i++){ ys.push(count===1 ? h/2 : pad+i*gap); }
+      return ys.map(function(y){ return {x: xs[li], y: y}; });
+    });
+    var lines = document.getElementById('netlines');
+    var nodes = document.getElementById('netnodes');
+    for (var l=0; l<positions.length-1; l++){
+      positions[l].forEach(function(a){
+        positions[l+1].forEach(function(b){
+          var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('x1',a.x); line.setAttribute('y1',a.y);
+          line.setAttribute('x2',b.x); line.setAttribute('y2',b.y);
+          lines.appendChild(line);
+        });
+      });
+    }
+    positions.forEach(function(layer, li){
+      layer.forEach(function(p){
+        var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',nodeR);
+        c.setAttribute('fill', li===positions.length-1 ? '#D3B06C' : '#E8E1C9');
+        nodes.appendChild(c);
+      });
+    });
+  })();
+
+  /* ---------- SVG: baseline network diagram ---------- */
+  (function(){
+    var svg = document.getElementById('baseline-net');
+    var layers = [
+      {n:6, label:'Input\n21'}, {n:6, label:'64'}, {n:5, label:'32'},
+      {n:4, label:'16'}, {n:3, label:'8'}, {n:4, label:'Output\n4'}
+    ];
+    var W=760, H=220, padX=56, padY=34;
+    var xs = layers.map(function(_,i){ return padX + i*((W-2*padX)/(layers.length-1)); });
+    var positions = layers.map(function(layer, li){
+      var ys=[]; var gap=(H-2*padY)/(layer.n-1 || 1);
+      for (var i=0;i<layer.n;i++){ ys.push(layer.n===1? H/2 : padY+i*gap); }
+      return ys.map(function(y){return {x:xs[li], y:y};});
+    });
+    var ns='http://www.w3.org/2000/svg';
+    for (var l=0;l<positions.length-1;l++){
+      positions[l].forEach(function(a){
+        positions[l+1].forEach(function(b){
+          var line=document.createElementNS(ns,'line');
+          line.setAttribute('x1',a.x); line.setAttribute('y1',a.y);
+          line.setAttribute('x2',b.x); line.setAttribute('y2',b.y);
+          line.setAttribute('stroke','#C9DACE'); line.setAttribute('stroke-width','1');
+          svg.appendChild(line);
+        });
+      });
+    }
+    positions.forEach(function(layer, li){
+      layer.forEach(function(p){
+        var c=document.createElementNS(ns,'circle');
+        c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r', li===0||li===layers.length-1 ? 7:6);
+        c.setAttribute('fill', li===layers.length-1 ? '#A97E2F' : (li===0 ? '#1B3A2A' : '#457F63'));
+        svg.appendChild(c);
+      });
+      var lbl=document.createElementNS(ns,'text');
+      lbl.setAttribute('x',xs[li]); lbl.setAttribute('y',H-4);
+      lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('class','axis-label');
+      lbl.textContent = layers[li].label.split('\n').pop();
+      svg.appendChild(lbl);
+      if (layers[li].label.indexOf('\n')>-1){
+        var lbl2=document.createElementNS(ns,'text');
+        lbl2.setAttribute('x',xs[li]); lbl2.setAttribute('y',H+14);
+        lbl2.setAttribute('text-anchor','middle'); lbl2.setAttribute('class','axis-label');
+        lbl2.textContent = layers[li].label.split('\n')[0];
+        svg.appendChild(lbl2);
+      }
+    });
+    svg.closest('svg').setAttribute('viewBox','0 0 760 240');
+  })();
+
+  /* ---------- generic bar chart builder ---------- */
+  function buildBarChart(svgId, data, opts){
+    opts = opts || {};
+    var svg = document.getElementById(svgId);
+    var ns='http://www.w3.org/2000/svg';
+    var svgRoot = svg.tagName.toLowerCase() === 'svg' ? svg : svg.closest('svg');
+    var vb = svgRoot.getAttribute('viewBox').split(' ').map(Number);
+    var W=vb[2], H=vb[3];
+    var padL=50, padB=40, padT=20, padR=20;
+    var chartW = W-padL-padR, chartH = H-padT-padB;
+    var maxVal = opts.max || Math.max.apply(null, data.map(function(d){return d.value;}))*1.15;
+    var n = data.length;
+    var bw = chartW/n*0.55;
+    // gridlines
+    var ticks = opts.ticks || 4;
+    for (var t=0;t<=ticks;t++){
+      var val = maxVal/ticks*t;
+      var y = padT + chartH - (val/maxVal*chartH);
+      var gl=document.createElementNS(ns,'line');
+      gl.setAttribute('x1',padL); gl.setAttribute('x2',W-padR); gl.setAttribute('y1',y); gl.setAttribute('y2',y);
+      gl.setAttribute('class','gridline');
+      svg.appendChild(gl);
+      var gt=document.createElementNS(ns,'text');
+      gt.setAttribute('x',padL-8); gt.setAttribute('y',y+4); gt.setAttribute('text-anchor','end');
+      gt.setAttribute('class','axis-label');
+      gt.textContent = opts.fmt ? opts.fmt(val) : val.toFixed(1);
+      svg.appendChild(gt);
+    }
+    data.forEach(function(d, i){
+      var slot = chartW/n;
+      var cx = padL + slot*i + slot/2;
+      var barH = (d.value/maxVal)*chartH;
+      var y = padT + chartH - barH;
+      var rect=document.createElementNS(ns,'rect');
+      rect.setAttribute('x', cx-bw/2); rect.setAttribute('y', y);
+      rect.setAttribute('width', bw); rect.setAttribute('height', Math.max(barH,1));
+      rect.setAttribute('rx', 3);
+      rect.setAttribute('class', 'bar' + (d.best ? ' best':''));
+      var title=document.createElementNS(ns,'title');
+      title.textContent = d.label + ': ' + (opts.fmt ? opts.fmt(d.value) : d.value);
+      rect.appendChild(title);
+      svg.appendChild(rect);
+
+      var vl=document.createElementNS(ns,'text');
+      vl.setAttribute('x',cx); vl.setAttribute('y', y-6); vl.setAttribute('text-anchor','middle');
+      vl.setAttribute('class','val-label');
+      vl.textContent = opts.fmt ? opts.fmt(d.value) : d.value;
+      svg.appendChild(vl);
+
+      var xl=document.createElementNS(ns,'text');
+      xl.setAttribute('x',cx); xl.setAttribute('y', H-padB+18); xl.setAttribute('text-anchor','middle');
+      xl.setAttribute('class','axis-label');
+      xl.textContent = d.label;
+      svg.appendChild(xl);
+    });
+  }
+
+  buildBarChart('lrChart', [
+    {label:'1e-5', value:1.3506},
+    {label:'1e-3', value:1.0508, best:true},
+    {label:'1e-2', value:1.0612},
+    {label:'1e-1', value:1.1381},
+    {label:'1.0',  value:1.3991}
+  ], {fmt:function(v){return v.toFixed(3);}, ticks:4});
+
+  buildBarChart('errChart', [
+    {label:'A', value:71},
+    {label:'B', value:96, best:true},
+    {label:'C', value:67},
+    {label:'D', value:48}
+  ], {fmt:function(v){return Math.round(v);}, ticks:4});
+
+  /* ---------- gradient-check layer chart (toggle) ---------- */
+  var gcClean = [
+    {label:'L1 W', value:5.10e-9}, {label:'L1 b', value:4.70e-9},
+    {label:'L2 W', value:1.02e-8}, {label:'L2 b', value:1.37e-9}
+  ];
+  var gcBuggy = [
+    {label:'L1 W', value:5.10e-9}, {label:'L1 b', value:4.70e-9},
+    {label:'L2 W', value:1.02e-8}, {label:'L2 b', value:1.0, best:true}
+  ];
+  function renderGC(data, log){
+    var svg = document.getElementById('gcChart');
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    buildBarChart('gcChart', data, {fmt:function(v){ return v.toExponential(2); }, max:1.0, ticks:4});
+  }
+  renderGC(gcClean);
+  var btnClean = document.getElementById('btnClean'), btnBuggy = document.getElementById('btnBuggy');
+  var gcCaption = document.getElementById('gcCaption');
+  if (btnClean && btnBuggy){
+    btnClean.addEventListener('click', function(){
+      btnClean.setAttribute('aria-selected','true'); btnBuggy.setAttribute('aria-selected','false');
+      renderGC(gcClean);
+      gcCaption.textContent = 'Every layer sits far below the 10⁻⁵ threshold — backpropagation is correct for this network.';
+    });
+    btnBuggy.addEventListener('click', function(){
+      btnBuggy.setAttribute('aria-selected','true'); btnClean.setAttribute('aria-selected','false');
+      renderGC(gcBuggy);
+      gcCaption.textContent = 'With the last layer\u2019s bias gradient zeroed out, its relative difference jumps to 1.00 while every other layer stays untouched — the report localizes the bug instead of just flagging "something is wrong."';
+    });
+  }
+
+  /* ---------- sigmoid vs softmax comparison bars ---------- */
+  (function(){
+    var labels = ['Pedestrian','Car','Traffic light','Stop sign'];
+    var softmax = [0.229, 0.139, 0.011, 0.621];
+    var sigmoid = [0.881, 0.818, 0.269, 0.953];
+    var wrap = document.getElementById('sigSoftChart');
+    labels.forEach(function(lab, i){
+      var col = document.createElement('div'); col.className='cmp-col';
+      var stack = document.createElement('div'); stack.className='cmp-stack';
+      var b1 = document.createElement('div'); b1.className='cmp-bar soft';
+      b1.style.height = (softmax[i]*130)+'px'; b1.title = 'softmax '+softmax[i];
+      var b2 = document.createElement('div'); b2.className='cmp-bar sig';
+      b2.style.height = (sigmoid[i]*130)+'px'; b2.title = 'sigmoid '+sigmoid[i];
+      stack.appendChild(b1); stack.appendChild(b2);
+      var label = document.createElement('div'); label.className='cmp-label';
+      label.innerHTML = lab + '<br><span style="font-family:var(--mono);font-size:11px;">'+softmax[i].toFixed(2)+' / '+sigmoid[i].toFixed(2)+'</span>';
+      col.appendChild(stack); col.appendChild(label);
+      wrap.appendChild(col);
+    });
+  })();
+
+})();
+</script>
+</body>
+</html>
